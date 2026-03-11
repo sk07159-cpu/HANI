@@ -80,6 +80,7 @@
             box.classList.remove('hidden');
         }
 
+        // ★★★ 구글 드라이브 사진 우회 로직 (복구 완료) ★★★
         function getImageUrl(url) {
             if (!url || !url.toString().includes('drive.google.com')) return 'https://via.placeholder.com/150?text=No+Image';
             var fileId = url.split('/d/')[1];
@@ -142,7 +143,6 @@
             document.querySelectorAll('.country-tab').forEach(function(b) { b.classList.remove('active-tab'); });
             btn.classList.add('active-tab');
             
-            // 국가 이름에 맞게 웰컴 타이틀과 사진 변경 (홍콩 등 추가될 때를 대비)
             document.getElementById('welcome-title').innerText = country.toUpperCase();
             var welcomeImg = document.getElementById('welcome-img');
             if(country.toLowerCase() === 'thailand') {
@@ -162,7 +162,6 @@
             });
             document.getElementById('region-buttons').innerHTML = htmlStr;
             
-            // 🌟 초기 화면 세팅: 카테고리와 리스트는 숨기고 웰컴 사진 표시
             document.getElementById('welcome-section').classList.remove('hidden');
             document.getElementById('category-buttons').classList.add('hidden');
             document.getElementById('place-list').classList.add('hidden');
@@ -174,7 +173,6 @@
             document.querySelectorAll('.reg-btn').forEach(function(b) { b.classList.remove('selected-btn'); });
             btn.classList.add('selected-btn');
             
-            // 🌟 지역 버튼을 누르면: 웰컴 사진 숨기고 카테고리/리스트 표시
             document.getElementById('welcome-section').classList.add('hidden');
             document.getElementById('category-buttons').classList.remove('hidden');
             document.getElementById('place-list').classList.remove('hidden');
@@ -239,6 +237,7 @@
             renderItems(); 
         }
 
+        // ★★★ 모바일 뷰포트 최적화 로직 (유지) ★★★
         function openDetail(name) {
             var item = null;
             for(var i=0; i<allData.length; i++) {
@@ -257,25 +256,31 @@
             var reviewStr = item.Review || '';
             var mapStr = item.Map_Link || '#';
 
-            var detailHtml = '<html><head><script src="https://cdn.tailwindcss.com"><\/script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>' +
-                '<body class="bg-stone-100 p-4 font-sans text-left">' +
-                    '<div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden min-h-screen border border-stone-200">' +
+            var detailHtml = '<html><head>' +
+                '<meta name="viewport" content="width=device-width, initial-scale=1.0">' + 
+                '<script src="https://cdn.tailwindcss.com"><\/script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>' +
+                '<body class="bg-stone-100 font-sans text-left">' + 
+                    '<div class="w-full mx-auto bg-white overflow-hidden min-h-screen border border-stone-200">' + 
                         '<div class="grid grid-cols-2 gap-0.5 bg-stone-200">' +
                             '<img src="' + getImageUrl(item.Photo1) + '" class="w-full h-48 object-cover">' +
                             '<img src="' + getImageUrl(item.Photo2) + '" class="w-full h-48 object-cover">' +
                             '<img src="' + getImageUrl(item.Photo3) + '" class="w-full h-48 object-cover">' +
                             '<img src="' + getImageUrl(item.Photo4) + '" class="w-full h-48 object-cover">' +
                         '</div>' +
-                        '<div class="p-8">' +
-                            '<h1 class="text-3xl font-black mb-2 text-zinc-900">' + nameStr + '</h1>' +
-                            '<div class="mb-8">' + renderStars(item.Rating) + ' <span class="text-stone-300 mx-2">|</span> <span class="text-stone-500 text-sm font-medium">' + subCatStr + '</span></div>' +
-                            '<div class="space-y-5 text-sm text-zinc-600 border-t border-stone-100 pt-6">' +
-                                '<p class="flex items-start"><i class="fa-solid fa-location-dot mt-1 mr-3 text-amber-600"></i> <span>' + addrStr + '</span></p>' +
-                                '<p class="flex items-start"><i class="fa-solid fa-tag mt-1 mr-3 text-amber-600"></i> <span>' + featStr + '</span></p>' +
-                                '<p class="flex items-start"><i class="fa-solid fa-phone mt-1 mr-3 text-amber-600"></i> <span>' + phoneStr + '</span></p>' +
-                                '<div class="bg-stone-50 p-5 rounded-2xl text-zinc-800 italic border border-stone-100 mt-4 leading-relaxed">"' + reviewStr + '"</div>' +
+                        '<div class="p-6">' + 
+                            '<h1 class="text-3xl font-black mb-2 text-zinc-900 leading-tight">' + nameStr + '</h1>' +
+                            '<div class="mb-8 flex items-center gap-1 flex-wrap">' + 
+                                renderStars(item.Rating) + 
+                                ' <span class="text-stone-300 mx-2">|</span> ' +
+                                '<span class="text-stone-500 text-sm font-medium bg-stone-100 px-2 py-1 rounded">' + subCatStr + '</span>' +
                             '</div>' +
-                            '<a href="' + mapStr + '" target="_blank" class="block w-full text-center bg-zinc-900 text-amber-500 py-4 rounded-2xl font-bold mt-10 shadow-lg transition hover:bg-zinc-800 tracking-wide border border-zinc-800">Open Google Maps</a>' +
+                            '<div class="space-y-5 text-sm text-zinc-600 border-t border-stone-100 pt-6">' +
+                                '<p class="flex items-start gap-3"><i class="fa-solid fa-location-dot mt-1 text-amber-600 flex-shrink-0"></i> <span>' + addrStr + '</span></p>' +
+                                '<p class="flex items-start gap-3"><i class="fa-solid fa-tag mt-1 text-amber-600 flex-shrink-0"></i> <span>' + featStr + '</span></p>' +
+                                '<p class="flex items-start gap-3"><i class="fa-solid fa-phone mt-1 text-amber-600 flex-shrink-0"></i> <span>' + phoneStr + '</span></p>' +
+                                '<div class="bg-stone-50 p-5 rounded-2xl text-zinc-800 italic border border-stone-100 mt-4 leading-relaxed text-sm">"' + reviewStr + '"</div>' +
+                            '</div>' +
+                            '<a href="' + mapStr + '" target="_blank" class="block w-full text-center bg-zinc-900 text-amber-500 py-4 rounded-full font-bold mt-10 shadow-lg transition hover:bg-zinc-800 tracking-wide border border-zinc-800 text-lg">Open Google Maps</a>' +
                         '</div>' +
                     '</div>' +
                 '</body></html>';
