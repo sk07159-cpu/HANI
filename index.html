@@ -52,9 +52,10 @@
             </p>
         </div>
 
-        <div id="category-buttons" class="hidden flex justify-center gap-3 mb-8">
+        <div id="category-buttons" class="hidden flex flex-wrap justify-center gap-3 mb-8">
             <button onclick="selectCategory('Restaurant', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">🍽️ Food</button>
             <button onclick="selectCategory('Cafe & Bar', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">☕ Cafe/Bar</button>
+            <button onclick="selectCategory('Hotel', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">🏨 Hotel</button>
             <button onclick="selectCategory('Service', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">💆 Massage</button>
         </div>
         
@@ -72,7 +73,8 @@
         var currentRegion = "";
         var visibleCount = 10;
         
-        var API_URL = "https://script.google.com/macros/s/AKfycbwT5iDIuNY6jP-bXD15WOl73awqGM6WM91TSnPbtidWp7fqGjOzTXZi8S7CGn1Em3sy/exec"; 
+        // ★★★ 알려주신 최신 API URL 로 교체 완료 ★★★
+        var API_URL = "https://script.google.com/macros/s/AKfycbwxFNRXfT3FnJRSWNvW0YEpCooQkFUawwFtw0dMWk7HDitWEpwfDusrpJz_T7feA-o/exec"; 
 
         function showError(msg) {
             var box = document.getElementById('error-box');
@@ -80,7 +82,6 @@
             box.classList.remove('hidden');
         }
 
-        // ★★★ 구글 드라이브 사진 우회 로직 (복구 완료) ★★★
         function getImageUrl(url) {
             if (!url || !url.toString().includes('drive.google.com')) return 'https://via.placeholder.com/150?text=No+Image';
             var fileId = url.split('/d/')[1];
@@ -145,8 +146,13 @@
             
             document.getElementById('welcome-title').innerText = country.toUpperCase();
             var welcomeImg = document.getElementById('welcome-img');
-            if(country.toLowerCase() === 'thailand') {
+            
+            var countryName = country.toLowerCase();
+            if(countryName === 'thailand') {
                 welcomeImg.src = 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+            } else if (countryName.includes('hong')) {
+                // ★★★ 시드니 대신 진짜 홍콩 야경 사진으로 변경 완료 ★★★
+                welcomeImg.src = 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             } else {
                 welcomeImg.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             }
@@ -237,7 +243,6 @@
             renderItems(); 
         }
 
-        // ★★★ 모바일 뷰포트 최적화 로직 (유지) ★★★
         function openDetail(name) {
             var item = null;
             for(var i=0; i<allData.length; i++) {
