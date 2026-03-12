@@ -68,7 +68,6 @@
         var currentRegion = "";
         var visibleCount = 10;
         
-        // 최신 시트 주소 완벽 유지
         var API_URL = "https://script.google.com/macros/s/AKfycbwxFNRXfT3FnJRSWNvW0YEpCooQkFUawwFtw0dMWk7HDitWEpwfDusrpJz_T7feA-o/exec"; 
 
         function showError(msg) {
@@ -77,7 +76,6 @@
             box.classList.remove('hidden');
         }
 
-        // 사진 깨짐 방지 우회 로직 유지
         function getImageUrl(url) {
             if (!url || !url.toString().includes('drive.google.com')) return 'https://via.placeholder.com/150?text=No+Image';
             var fileId = url.split('/d/')[1];
@@ -144,7 +142,6 @@
             var welcomeImg = document.getElementById('welcome-img');
             var countryName = country.toLowerCase();
             
-            // 사진 변경 (태국 vs 홍콩 야경)
             if(countryName === 'thailand') {
                 welcomeImg.src = 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             } else if (countryName.includes('hong')) {
@@ -153,8 +150,6 @@
                 welcomeImg.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             }
             
-            // 1. 지역(Region) 동적 생성 
-            // (스프레드시트에 적힌 지역명이 그대로 버튼으로 만들어집니다)
             var regions = [];
             allData.forEach(function(d) {
                 if(d.Country === country && d.Region && regions.indexOf(d.Region) === -1) regions.push(d.Region);
@@ -166,7 +161,6 @@
             });
             document.getElementById('region-buttons').innerHTML = htmlStr;
 
-            // 2. 카테고리(Category) 동적 생성 ★ (국가별 맞춤 변경) ★
             var catContainer = document.getElementById('category-buttons');
             var catHtml = "";
             var btnStyle = "cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800";
@@ -201,7 +195,6 @@
             document.getElementById('category-buttons').classList.remove('hidden');
             document.getElementById('place-list').classList.remove('hidden');
             
-            // 지역 클릭 시 첫 번째 카테고리(Food) 자동 선택
             var firstCatBtn = document.querySelector('.cat-btn');
             if(firstCatBtn) firstCatBtn.click();
         }
@@ -224,8 +217,14 @@
             var container = document.getElementById('place-list');
             var items = filteredList.slice(0, visibleCount);
             
+            // ★★★ 감성 넘치는 준비 중(Empty State) 화면 업데이트 ★★★
             if(items.length === 0) {
-                container.innerHTML = "<p class='p-10 text-center text-stone-400'>No results found.</p>";
+                container.innerHTML = 
+                    '<div class="py-20 px-6 text-center flex flex-col items-center justify-center bg-stone-50/80 rounded-2xl border border-dashed border-stone-200 m-4">' +
+                        '<span class="text-4xl mb-4 drop-shadow-sm">✈️✨</span>' +
+                        '<p class="text-zinc-700 font-bold tracking-wide text-lg">Hani is curating the best spots here!</p>' +
+                        '<p class="text-stone-500 text-sm mt-2 font-medium">Stay tuned for updates. 🤍</p>' +
+                    '</div>';
                 document.getElementById('load-more-btn').classList.add('hidden');
                 return;
             }
@@ -263,7 +262,6 @@
             renderItems(); 
         }
 
-        // 모바일 최적화 레이아웃 유지
         function openDetail(name) {
             var item = null;
             for(var i=0; i<allData.length; i++) {
@@ -320,5 +318,6 @@
     </script>
 </body>
 </html>
+
 
 
