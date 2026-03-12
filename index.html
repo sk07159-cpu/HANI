@@ -52,12 +52,7 @@
             </p>
         </div>
 
-        <div id="category-buttons" class="hidden flex flex-wrap justify-center gap-3 mb-8">
-            <button onclick="selectCategory('Restaurant', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">🍽️ Food</button>
-            <button onclick="selectCategory('Cafe & Bar', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">☕ Cafe/Bar</button>
-            <button onclick="selectCategory('Hotel', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">🏨 Hotel</button>
-            <button onclick="selectCategory('Service', this)" class="cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800">💆 Massage</button>
-        </div>
+        <div id="category-buttons" class="hidden flex flex-wrap justify-center gap-3 mb-8"></div>
         
         <div id="place-list" class="bg-white rounded-2xl shadow-md border border-stone-100 divide-y divide-stone-100 overflow-hidden text-left hidden"></div>
         
@@ -73,7 +68,7 @@
         var currentRegion = "";
         var visibleCount = 10;
         
-        // 최신 API URL 유지
+        // 최신 시트 주소 완벽 유지
         var API_URL = "https://script.google.com/macros/s/AKfycbwxFNRXfT3FnJRSWNvW0YEpCooQkFUawwFtw0dMWk7HDitWEpwfDusrpJz_T7feA-o/exec"; 
 
         function showError(msg) {
@@ -82,7 +77,7 @@
             box.classList.remove('hidden');
         }
 
-        // 구글 사진 우회 로직 유지
+        // 사진 깨짐 방지 우회 로직 유지
         function getImageUrl(url) {
             if (!url || !url.toString().includes('drive.google.com')) return 'https://via.placeholder.com/150?text=No+Image';
             var fileId = url.split('/d/')[1];
@@ -147,17 +142,19 @@
             
             document.getElementById('welcome-title').innerText = country.toUpperCase();
             var welcomeImg = document.getElementById('welcome-img');
-            
             var countryName = country.toLowerCase();
+            
+            // 사진 변경 (태국 vs 홍콩 야경)
             if(countryName === 'thailand') {
                 welcomeImg.src = 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             } else if (countryName.includes('hong')) {
-                // 홍콩 야경 사진 유지
                 welcomeImg.src = 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             } else {
                 welcomeImg.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
             }
             
+            // 1. 지역(Region) 동적 생성 
+            // (스프레드시트에 적힌 지역명이 그대로 버튼으로 만들어집니다)
             var regions = [];
             allData.forEach(function(d) {
                 if(d.Country === country && d.Region && regions.indexOf(d.Region) === -1) regions.push(d.Region);
@@ -168,6 +165,26 @@
                 htmlStr += '<button onclick="selectRegion(\'' + r + '\', this)" class="reg-btn bg-white border border-stone-200 text-zinc-700 px-5 py-2 rounded-xl text-sm font-semibold transition hover:bg-stone-100 shadow-sm">' + r + '</button>';
             });
             document.getElementById('region-buttons').innerHTML = htmlStr;
+
+            // 2. 카테고리(Category) 동적 생성 ★ (국가별 맞춤 변경) ★
+            var catContainer = document.getElementById('category-buttons');
+            var catHtml = "";
+            var btnStyle = "cat-btn bg-white border border-stone-300 text-stone-600 px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition hover:border-zinc-800";
+
+            if(countryName === 'thailand') {
+                catHtml += '<button onclick="selectCategory(\'Food\', this)" class="'+btnStyle+'">🍽️ Food</button>';
+                catHtml += '<button onclick="selectCategory(\'Cafe/Bar\', this)" class="'+btnStyle+'">☕ Cafe/Bar</button>';
+                catHtml += '<button onclick="selectCategory(\'Hotel\', this)" class="'+btnStyle+'">🏨 Hotel</button>';
+                catHtml += '<button onclick="selectCategory(\'Spa\', this)" class="'+btnStyle+'">💆 Spa</button>';
+            } else if(countryName.includes('hong')) {
+                catHtml += '<button onclick="selectCategory(\'Food\', this)" class="'+btnStyle+'">🍽️ Food</button>';
+                catHtml += '<button onclick="selectCategory(\'Cafe/Bar\', this)" class="'+btnStyle+'">☕ Cafe/Bar</button>';
+                catHtml += '<button onclick="selectCategory(\'Hotel\', this)" class="'+btnStyle+'">🏨 Hotel</button>';
+                catHtml += '<button onclick="selectCategory(\'Etc\', this)" class="'+btnStyle+'">📌 Etc</button>';
+            } else {
+                catHtml += '<button onclick="selectCategory(\'Food\', this)" class="'+btnStyle+'">🍽️ Food</button>';
+            }
+            catContainer.innerHTML = catHtml;
             
             document.getElementById('welcome-section').classList.remove('hidden');
             document.getElementById('category-buttons').classList.add('hidden');
@@ -184,7 +201,9 @@
             document.getElementById('category-buttons').classList.remove('hidden');
             document.getElementById('place-list').classList.remove('hidden');
             
-            document.querySelector('.cat-btn').click();
+            // 지역 클릭 시 첫 번째 카테고리(Food) 자동 선택
+            var firstCatBtn = document.querySelector('.cat-btn');
+            if(firstCatBtn) firstCatBtn.click();
         }
 
         function selectCategory(cat, btn) {
@@ -244,6 +263,7 @@
             renderItems(); 
         }
 
+        // 모바일 최적화 레이아웃 유지
         function openDetail(name) {
             var item = null;
             for(var i=0; i<allData.length; i++) {
@@ -262,7 +282,6 @@
             var reviewStr = item.Review || '';
             var mapStr = item.Map_Link || '#';
 
-            // 모바일 최적화 메타태그 및 레이아웃 유지
             var detailHtml = '<html><head>' +
                 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' + 
                 '<script src="https://cdn.tailwindcss.com"><\/script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>' +
