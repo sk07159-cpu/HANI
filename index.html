@@ -90,7 +90,8 @@
         }
 
         function getImageUrl(url) {
-            if (!url || !url.toString().includes('drive.google.com')) return 'https://via.placeholder.com/150?text=No+Image';
+            if (!url || !url.toString().trim()) return null;
+            if (!url.toString().includes('drive.google.com')) return url;
             var fileId = url.split('/d/')[1];
             if(fileId) fileId = fileId.split('/')[0];
             return fileId ? "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000" : url;
@@ -254,7 +255,9 @@
                 var subCat = item.SubCategory || '';
                 var addr = item.Address || '';
                 var review = item.Review || '';
-                var photo = getImageUrl(item.Photo1);
+                
+                var firstValidPhoto = getImageUrl(item.Photo1) || getImageUrl(item.Photo2) || getImageUrl(item.Photo3) || getImageUrl(item.Photo4) || 'https://via.placeholder.com/150?text=No+Image';
+                
                 var ratingHtml = renderStars(item.Rating);
 
                 htmlStr += '<div onclick="openDetail(\'' + name.replace(/'/g, "\\'") + '\')" class="flex items-center p-5 gap-4 hover:bg-stone-50 cursor-pointer transition">' +
@@ -264,7 +267,7 @@
                         '<p class="text-xs text-stone-500 truncate">' + addr + '</p>' +
                         '<p class="text-xs text-amber-700 mt-2 italic font-medium truncate">"' + review + '"</p>' +
                     '</div>' +
-                    '<img src="' + photo + '" class="w-24 h-24 object-cover rounded-xl border border-stone-200 shadow-sm">' +
+                    '<img src="' + firstValidPhoto + '" class="w-24 h-24 object-cover rounded-xl border border-stone-200 shadow-sm">' +
                 '</div>';
             });
             container.innerHTML = htmlStr;
@@ -306,18 +309,46 @@
             var reviewStr = item.Review || '';
             var mapStr = item.Map_Link || '#';
 
-            // 문법 충돌을 완벽히 방지하는 안전한 분리 작성법 적용
+            // ★★★ 사진 갯수 검사 및 다이내믹 그리드 생성 ★★★
+            var validPhotos = [];
+            var p1 = getImageUrl(item.Photo1); if(p1) validPhotos.push(p1);
+            var p2 = getImageUrl(item.Photo2); if(p2) validPhotos.push(p2);
+            var p3 = getImageUrl(item.Photo3); if(p3) validPhotos.push(p3);
+            var p4 = getImageUrl(item.Photo4); if(p4) validPhotos.push(p4);
+
+            var photoHtml = '';
+            if (validPhotos.length === 1) {
+                photoHtml = '<img src="' + validPhotos[0] + '" class="w-full h-72 object-cover">';
+            } else if (validPhotos.length === 2) {
+                photoHtml = '<div class="grid grid-cols-2 gap-0.5 bg-stone-200">' +
+                            '<img src="' + validPhotos[0] + '" class="w-full h-64 object-cover">' +
+                            '<img src="' + validPhotos[1] + '" class="w-full h-64 object-cover">' +
+                            '</div>';
+            } else if (validPhotos.length === 3) {
+                photoHtml = '<div class="grid grid-cols-2 gap-0.5 bg-stone-200">' +
+                            '<img src="' + validPhotos[0] + '" class="w-full h-56 object-cover col-span-2">' +
+                            '<img src="' + validPhotos[1] + '" class="w-full h-40 object-cover">' +
+                            '<img src="' + validPhotos[2] + '" class="w-full h-40 object-cover">' +
+                            '</div>';
+            } else if (validPhotos.length >= 4) {
+                photoHtml = '<div class="grid grid-cols-2 gap-0.5 bg-stone-200">' +
+                            '<img src="' + validPhotos[0] + '" class="w-full h-48 object-cover">' +
+                            '<img src="' + validPhotos[1] + '" class="w-full h-48 object-cover">' +
+                            '<img src="' + validPhotos[2] + '" class="w-full h-48 object-cover">' +
+                            '<img src="' + validPhotos[3] + '" class="w-full h-48 object-cover">' +
+                            '</div>';
+            } else {
+                photoHtml = '<div class="w-full h-48 bg-stone-200 flex items-center justify-center text-stone-400 font-bold tracking-widest text-sm">NO IMAGE</div>';
+            }
+
             var detailHtml = '<html><head>' +
                 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' + 
                 '<script src="https://cdn.tailwindcss.com"><\/script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>' +
                 '<body class="bg-stone-100 font-sans text-left pb-10">' + 
                     '<div class="w-full mx-auto bg-white overflow-hidden min-h-screen border border-stone-200 shadow-sm">' + 
-                        '<div class="grid grid-cols-2 gap-0.5 bg-stone-200">' +
-                            '<img src="' + getImageUrl(item.Photo1) + '" class="w-full h-48 object-cover">' +
-                            '<img src="' + getImageUrl(item.Photo2) + '" class="w-full h-48 object-cover">' +
-                            '<img src="' + getImageUrl(item.Photo3) + '" class="w-full h-48 object-cover">' +
-                            '<img src="' + getImageUrl(item.Photo4) + '" class="w-full h-48 object-cover">' +
-                        '</div>' +
+                        
+                        photoHtml + 
+
                         '<div class="p-6">' + 
                             '<h1 class="text-3xl font-black mb-2 text-zinc-900 leading-tight">' + nameStr + '</h1>' +
                             '<div class="mb-8 flex items-center gap-1 flex-wrap">' + 
@@ -331,6 +362,7 @@
                                 '<p class="flex items-start gap-3"><i class="fa-solid fa-phone mt-1 text-amber-600 flex-shrink-0"></i> <span>' + phoneStr + '</span></p>' +
                                 '<div class="bg-stone-50 p-5 rounded-2xl text-zinc-800 italic border border-stone-100 mt-4 leading-relaxed text-sm">"' + reviewStr + '"</div>' +
                             '</div>' +
+                            
                             '<div class="flex gap-3 mt-10">' +
                                 '<button onclick="shareLink()" class="flex-1 bg-white text-zinc-800 border border-zinc-200 py-4 rounded-2xl font-bold shadow-sm transition hover:bg-stone-50 text-base flex justify-center items-center gap-2">' +
                                     '<i class="fa-solid fa-arrow-up-from-bracket"></i> Share' +
