@@ -11,7 +11,6 @@
         .selected-btn { background-color: #27272a !important; color: #ffffff !important; border-color: #27272a !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* 1️⃣ 귀여운 감성 로딩 애니메이션 (두근두근 깜빡임) */
         @keyframes pulse-fast {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.1); }
@@ -247,7 +246,6 @@
                 return;
             }
 
-            // 목록이 있을 때만 랜덤 버튼 표시
             randomBtn.classList.remove('hidden');
 
             var htmlStr = "";
@@ -283,7 +281,6 @@
             renderItems(); 
         }
 
-        // 2️⃣ 랜덤 뽑기 함수 추가
         function pickRandom() {
             if(filteredList.length === 0) return;
             var randomIndex = Math.floor(Math.random() * filteredList.length);
@@ -309,6 +306,7 @@
             var reviewStr = item.Review || '';
             var mapStr = item.Map_Link || '#';
 
+            // 문법 충돌을 완벽히 방지하는 안전한 분리 작성법 적용
             var detailHtml = '<html><head>' +
                 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' + 
                 '<script src="https://cdn.tailwindcss.com"><\/script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>' +
@@ -333,10 +331,8 @@
                                 '<p class="flex items-start gap-3"><i class="fa-solid fa-phone mt-1 text-amber-600 flex-shrink-0"></i> <span>' + phoneStr + '</span></p>' +
                                 '<div class="bg-stone-50 p-5 rounded-2xl text-zinc-800 italic border border-stone-100 mt-4 leading-relaxed text-sm">"' + reviewStr + '"</div>' +
                             '</div>' +
-                            
-                            // 3️⃣ 공유하기 & 구글맵 버튼 나란히 배치
                             '<div class="flex gap-3 mt-10">' +
-                                '<button onclick="shareLocation()" class="flex-1 bg-white text-zinc-800 border border-zinc-200 py-4 rounded-2xl font-bold shadow-sm transition hover:bg-stone-50 text-base flex justify-center items-center gap-2">' +
+                                '<button onclick="shareLink()" class="flex-1 bg-white text-zinc-800 border border-zinc-200 py-4 rounded-2xl font-bold shadow-sm transition hover:bg-stone-50 text-base flex justify-center items-center gap-2">' +
                                     '<i class="fa-solid fa-arrow-up-from-bracket"></i> Share' +
                                 '</button>' +
                                 '<a href="' + mapStr + '" target="_blank" class="flex-1 text-center bg-zinc-900 text-amber-500 py-4 rounded-2xl font-bold shadow-lg transition hover:bg-zinc-800 tracking-wide border border-zinc-800 text-base flex justify-center items-center gap-2">' +
@@ -346,20 +342,13 @@
                         '</div>' +
                     '</div>' +
                     
-                    // 공유하기 기능을 위한 자바스크립트 추가
-                    '<script>' +
-                    'function shareLocation() {' +
-                    '  if(navigator.share) {' +
-                    '    navigator.share({' +
-                    '      title: "Hani\\'s Choice: ' + nameStr.replace(/"/g, '') + '",' +
-                    '      text: "하늬가 추천하는 핫플 \\'' + nameStr.replace(/"/g, '') + '\\'에 가보세요! ✨",' +
-                    '      url: "' + mapStr + '"' +
-                    '    }).catch(console.error);' +
-                    '  } else {' +
-                    '    navigator.clipboard.writeText("' + mapStr + '").then(() => alert("링크가 복사되었습니다! 카톡이나 DM에 붙여넣기 해주세요.🤍"));' +
-                    '  }' +
+                    '<scr' + 'ipt>' +
+                    'function shareLink() {' +
+                    '  var u = "' + mapStr.replace(/"/g, '%22') + '";' +
+                    '  if(navigator.share) { navigator.share({url: u}); }' +
+                    '  else { navigator.clipboard.writeText(u).then(function(){alert("링크가 복사되었습니다! 친구에게 붙여넣기 해주세요.🤍");}); }' +
                     '}' +
-                    '<\/script>' +
+                    '</scr' + 'ipt>' +
                 '</body></html>';
                 
             var win = window.open("", "_blank", "width=480,height=850");
